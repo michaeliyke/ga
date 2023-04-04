@@ -9,6 +9,8 @@ from pruning.utils import create_err as err
 tool = 'ga'
 # python -m ga -d user mails phones -fF -c true -k -l track -D safe
 FLAGS = {
+  '-v': '--verbose',
+  '--verbose': {'name': 'verbose', 'short': '-v'},
   '-m': '--merge',
   '--merge': {'name': 'merge', 'short': '-m'},
   '-f': '--force',
@@ -205,15 +207,21 @@ def parse() -> dict:
       if  nxt in flag_names:
         return err(err_id=64, err_m=f'Unexpected flag \'{nxt}\'')
 
-  parsed = parse_args_details(args=args, OPTIONS=OPTIONS, FLAGS=FLAGS)
-
-  return err(
+  parsed = err(
     err_code='Ok', 
     err_id=100, 
     options=option_names,
     flags=flag_names,
-    extend=parsed,
+    extend=parse_args_details(args=args, OPTIONS=OPTIONS, FLAGS=FLAGS),
     )
+
+  # weed the output
+  if '--verbose' not in parsed['flags']:
+    for item in ['_poss', 'err_m', 'err_id', 'options', 'flags']:
+      del parsed[item]
+      pass
+
+  return parsed
 
 
 # TODO: PREVENT Non-List options from receiving more than one argument
