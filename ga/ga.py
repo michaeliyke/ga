@@ -45,7 +45,7 @@ OPTIONS = {
 
 
 def get_assoc(x: str, ASSOC: dict):
-  if not x in ASSOC: 
+  if not x in ASSOC:
     return err(err_id=74, err_m=f'Flag \'{x}\' is not recognized')
   if x.startswith('--'): return ASSOC[x]
   if x.startswith('-'): return ASSOC[ASSOC[x]]
