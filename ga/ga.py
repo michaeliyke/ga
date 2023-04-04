@@ -7,7 +7,7 @@ from itertools import pairwise
 from pruning.utils import create_err as err
 
 tool = 'ga'
-
+# python -m ga -d user mails phones -fF -c true -k -l track -D safe
 FLAGS = {
   '-m': '--merge',
   '--merge': {'name': 'merge', 'short': '-m'},
