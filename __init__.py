@@ -1,1 +1,1 @@
-from ga_cli.ga import *
+from .ga import *
