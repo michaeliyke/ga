@@ -8,13 +8,13 @@
       "name": "GA",
       "type": "python",
       "request": "launch",
-      "module": "pruning.ga",
+      "module": "ga_cli.ga",
       "console": "integratedTerminal",
       "justMyCode": true,
       "cwd": "${workspaceFolder}",
       "args": [
         "-d",  "user",  "mails",  "phones",  "-fF",  "-c",
-        "true",  "-k", "-l",  "track", "-D", "safe",
+        "true",  "-k", "-l",  "track", "-D", "safe", "move",
       ]
     },
     {

@@ -9,8 +9,6 @@ from pruning.utils import create_err as err
 tool = 'ga'
 # python -m ga -d user mails phones -fF -c true -k -l track -D safe
 FLAGS = {
-  '-v': '--verbose',
-  '--verbose': {'name': 'verbose', 'short': '-v'},
   '-m': '--merge',
   '--merge': {'name': 'merge', 'short': '-m'},
   '-f': '--force',
@@ -36,7 +34,7 @@ OPTIONS = {
 
   # more
   '-D': '--delete-type',
-  '--delete-type': {'name': 'delete-type', 'array': False},
+  '--delete-type': {'name': 'delete-type'},
   '-d': '--delete',
   '--delete': {'name': 'delete', 'array': True},
   '-c': '--cascade',
@@ -207,30 +205,18 @@ def parse() -> dict:
       if  nxt in flag_names:
         return err(err_id=64, err_m=f'Unexpected flag \'{nxt}\'')
 
-  parsed = err(
+  parsed = parse_args_details(args=args, OPTIONS=OPTIONS, FLAGS=FLAGS)
+
+  return err(
     err_code='Ok', 
     err_id=100, 
     options=option_names,
     flags=flag_names,
-    extend=parse_args_details(args=args, OPTIONS=OPTIONS, FLAGS=FLAGS),
+    extend=parsed,
     )
 
-  # weed the output
-  if '--verbose' not in parsed['flags']:
-    for k in ['_poss', 'err_m', 'err_id', 'options', 'flags']:
-      if k in parsed:
-        if parsed['err_code'] != 'Ok' and k in ['err_code', 'err_m', 'err_id']: continue
-        del parsed[k]
 
-  return parsed
-
-'''
-if OPTIONS[o]['array'] is False and len(opt_args) > 1:
-  return err(err_id=85, err_m=f'Non-array option {o} recieved multiple values')
-'''
 # TODO: PREVENT Non-List options from receiving more than one argument
-# TODO: fix the above issue about incorrect number of arguments for a non-array option
-# TODO line number - 251
 def parse_args_details(*, args: List[str], OPTIONS: dict, FLAGS: dict):
   details = {}
   o = ''
@@ -245,11 +231,6 @@ def parse_args_details(*, args: List[str], OPTIONS: dict, FLAGS: dict):
     if p in OPTIONS: # or it is the end
       # Register current set of arguments under the given option and empty opt_args
       if opt_args:
-        option = OPTIONS[o]
-        if 'array' in option and option['array'] == False:
-          if len(opt_args) > 1:
-            return err(err_id=85, err_m=f'option {o} allows only one argument {len(opt_args)} given')
-          details[o] = opt_args[0]
         details[o] = opt_args
         opt_args = []
       _poss[index] = ['o', p]
@@ -263,11 +244,7 @@ def parse_args_details(*, args: List[str], OPTIONS: dict, FLAGS: dict):
     opt_args.append(p)
     _poss[index] = ['a', p]
     if len(args) == 0:
-      if 'array' in OPTIONS[o] and OPTIONS[o]['array'] == False:
-        if len(opt_args) > 1: 
-          return err(err_id=85,err_m=f'option {o} allows only one argument, {len(opt_args)} given')
       details[o] = opt_args
-      # details[o] = opt_args[0] TODO: Address issue of singular/pluaral for array/non-array opts
   details['_poss'] = _poss
 
   return details
@@ -303,5 +280,3 @@ def parse_args_details(*, args: List[str], OPTIONS: dict, FLAGS: dict):
 
 # The time it takes to make a decision increases as the number of alternatives increases
 # - William Edmund Hick
-
-__all__ = ['get_args_of', 'get_assoc', 'parse']
