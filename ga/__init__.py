@@ -45,6 +45,15 @@ OPTIONS = {
   '--log': {'name': 'log'},
 }
 
+def extend(*, options=None, flags=None) -> dict:
+  if options:
+    if not isinstance(options, dict): return err(err_id=0, err_m='options must be a dict')
+    OPTIONS.update(options)
+  
+  if flags:
+    if not isinstance(flags, dict): return err(err_id=0, err_m='flags must be a dict')
+    FLAGS.update(flags)
+
 
 def get_assoc(x: str, ASSOC: dict):
   if not x in ASSOC:
@@ -66,7 +75,15 @@ def get_args_of(*, option: str, multiple: bool, args: List):
   pass
 
 
-def parse() -> dict:
+def parse(*, options=None, flags=None) -> dict:
+  if options:
+    if not isinstance(options, dict): return err(err_id=0, err_m='options must be a dict')
+    OPTIONS.update(options)
+  
+  if flags:
+    if not isinstance(flags, dict): return err(err_id=0, err_m='flags must be a dict')
+    FLAGS.update(flags)
+
   sys.argv.pop(0)
   sys.argv.insert(0, tool)
   args = deepcopy(sys.argv[1:])
