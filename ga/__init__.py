@@ -45,7 +45,7 @@ OPTIONS = {
   '--log': {'name': 'log'},
 }
 
-def extend(*, options=None, flags=None) -> dict:
+def extend(*, options={}, flags={}) -> dict:
   if options:
     if not isinstance(options, dict): return err(err_id=0, err_m='options must be a dict')
     OPTIONS.update(options)
@@ -75,7 +75,22 @@ def get_args_of(*, option: str, multiple: bool, args: List):
   pass
 
 
-def parse(*, options=None, flags=None) -> dict:
+'''TODO: 
+Make a function for parsing arguments and returning JSON separate. In other words, split parse() such
+that, a function handles putting given input into a JSON without judging the items. Then let another 
+function do the judging or validation. This will enable us handle arbitrary cases of argument management 
+such as mananing default arguments
+'''
+
+'''TODO:
+postional: ['a', '25', 'xy'] # Three postional arguments
+[instruction]positions - 3 - Unnecessary - recognize all inputs as positional arg until a flag or an option
+'''
+
+def parse(*, options={}, flags={}) -> dict:
+  
+  global OPTIONS, FLAGS
+  
   if options:
     if not isinstance(options, dict): return err(err_id=0, err_m='options must be a dict')
     OPTIONS.update(options)
@@ -89,8 +104,6 @@ def parse(*, options=None, flags=None) -> dict:
   args = deepcopy(sys.argv[1:])
   options, flags = [], []
   option_names, flag_names = [], []
-  global OPTIONS, FLAGS
-  # global FLAGS
 
   OPTIONS = deepcopy(OPTIONS)
   FLAGS = deepcopy(FLAGS)
@@ -240,6 +253,19 @@ def parse(*, options=None, flags=None) -> dict:
         del parsed[k]
 
   return parsed
+
+
+'''Before calling get_positional() ensure that all given options and flags have been fully harvested.
+So, you provide us with the flags and options and along with the arguments, then I give you the positional
+arguments'''
+def get_postional(*, args: List[str], options: List[str], flags:List[str]):
+  positional = []
+  for arg in args:
+    if arg in options or arg in flags: return positional
+
+
+def swap_tokens(*, args: List[str], OPTIONS: dict, FLAGS: dict):pass
+
 
 '''
 if OPTIONS[o]['array'] is False and len(opt_args) > 1:
