@@ -266,6 +266,9 @@ def get_postional(*, args: List[str], options: List[str], flags:List[str]):
 
 def swap_tokens(*, args: List[str], OPTIONS: dict, FLAGS: dict):pass
 
+# Judge the input arguments for any irregularities
+def interrogate(): pass
+
 
 '''
 if OPTIONS[o]['array'] is False and len(opt_args) > 1:
