@@ -19,7 +19,7 @@ FLAGS = {
   '--global': {'name': 'global', 'short': '-g'},
   '--tags': {'name': 'tags', 'short': ''},
   '--allow-unrelated-histories': {'name': 'allow-unrelated-histories', 'short': ''},
-  
+
   # more
   '-F': '--fry',
   '--fry': {'name': 'fry', 'short': '-F'},
@@ -49,7 +49,7 @@ def extend(*, options={}, flags={}) -> dict:
   if options:
     if not isinstance(options, dict): return err(err_id=0, err_m='options must be a dict')
     OPTIONS.update(options)
-  
+
   if flags:
     if not isinstance(flags, dict): return err(err_id=0, err_m='flags must be a dict')
     FLAGS.update(flags)
@@ -64,8 +64,8 @@ def get_assoc(x: str, ASSOC: dict):
 def get_args_of(*, option: str, multiple: bool, args: List):
   # python -m pruning.list . .txt
   # get_args_of('-m', multiple=true, args='python -m pruning.list . .txt')
-  
-  
+
+
   # args will be modified
   # if multiple, match args until a dash(-) is encountered
   # if not, option is the next match
@@ -75,10 +75,10 @@ def get_args_of(*, option: str, multiple: bool, args: List):
   pass
 
 
-'''TODO: 
+'''TODO:
 Make a function for parsing arguments and returning JSON separate. In other words, split parse() such
-that, a function handles putting given input into a JSON without judging the items. Then let another 
-function do the judging or validation. This will enable us handle arbitrary cases of argument management 
+that, a function handles putting given input into a JSON without judging the items. Then let another
+function do the judging or validation. This will enable us handle arbitrary cases of argument management
 such as mananing default arguments
 '''
 
@@ -88,13 +88,13 @@ postional: ['a', '25', 'xy'] # Three postional arguments
 '''
 
 def parse(*, options={}, flags={}) -> dict:
-  
+
   global OPTIONS, FLAGS
-  
+
   if options:
     if not isinstance(options, dict): return err(err_id=0, err_m='options must be a dict')
     OPTIONS.update(options)
-  
+
   if flags:
     if not isinstance(flags, dict): return err(err_id=0, err_m='flags must be a dict')
     FLAGS.update(flags)
@@ -109,6 +109,7 @@ def parse(*, options={}, flags={}) -> dict:
   FLAGS = deepcopy(FLAGS)
 
   # Meta Validation: FLAGS
+  # FLAGS General Initial Validation
   key: str
   for key in FLAGS.keys():
     # Handle omission of the dash(-) in naming an flag
@@ -116,7 +117,7 @@ def parse(*, options={}, flags={}) -> dict:
     # Dissallow having a key in both options and flags
     if key in OPTIONS:
       return err(err_id=30, err_m=f'Same key \'{key}\' found in OPTIONS and FLAGS')
-    
+
     # Handle the short flag form
     # The long version of a short flag must exist
     if key.startswith('-') and key.count('-') == 1 and len(key) == 2:
@@ -127,7 +128,7 @@ def parse(*, options={}, flags={}) -> dict:
       if not (isinstance(FLAGS[fl], dict) and 'name' in FLAGS[fl] and 'short' in FLAGS[fl]):
         return err(err_id=84, err_m=f'Invalid flag \'{key}\' detected in settings')
       if FLAGS[fl]['name'] == fl[2:] and FLAGS[fl]['short'] != key:
-        return err(err_id=6, err_m=f'Flag \'{key}\' does not match it\'s long form')      
+        return err(err_id=6, err_m=f'Flag \'{key}\' does not match it\'s long form')
     # Handle the long flag form
     # a full flag is 3 characters and above
     # flag value is dict with name same as the name of the flag without the dashes(--)
@@ -151,7 +152,7 @@ def parse(*, options={}, flags={}) -> dict:
       if not isinstance(OPTIONS[fl], dict) and 'name' in FLAGS[fl]:
         return err(err_id=83, err_m=f'Invalid option \'{key}\' detected in settings')
       if not OPTIONS[fl]['name'] == fl[2:]:
-        return err(err_id=6, err_m=f'Option \'{key}\' does not match it\'s long form')      
+        return err(err_id=6, err_m=f'Option \'{key}\' does not match it\'s long form')
     # Handle the long option form##############################
     # a full option is 3 characters and above
     # option value is dict with name same as the name of the option without the dashes(--)
@@ -167,6 +168,9 @@ def parse(*, options={}, flags={}) -> dict:
   element: str
   seek = 0
   # Harvesting: user options and flags
+  element: str
+  seek = 0
+  # Harvest user options and flags
   for i, element in enumerate(deepcopy(args)):
     if element.startswith('-') or element.startswith('--'):
       if element in OPTIONS:
@@ -198,7 +202,7 @@ def parse(*, options={}, flags={}) -> dict:
       # Otherwise, unrecognized set flags pass for an argument and so is skipped
       cpy = [FLAGS['-'+x] for x in element[1:] if f'-{x}' in FLAGS]
       if len(cpy) != len(element[1:]): continue #
-      
+
       # Expand the flags to individual components
       # Each short flag can only be one character besides the dash(-)
       # skip ahead by one element while inserting all of cpy in its place
@@ -209,11 +213,11 @@ def parse(*, options={}, flags={}) -> dict:
           return err(err_id=34, err_m=f'Flag \'{flag}\' duplicated')
         flag_names.append(flag)
         flags.append(get_assoc(flag, FLAGS))
-        
+
       seek += len(cpy)-1
-    
+
   # VALIDATE FLAGS and OPTIONS
-  # ensure a flag goes before a flag, an option or is at the end - 
+  # ensure a flag goes before a flag, an option or is at the end -
   # flag cannot go just before an argument
   # The first argument must be a flag or an option
   # The last argument must either be a flag or an option argument
@@ -222,7 +226,7 @@ def parse(*, options={}, flags={}) -> dict:
       return err(err_id=16, err_m=f'Option \'{args[-1]}\' expects input(s)')
     if args[0] not in option_names and args[0] not in flag_names:
       return err(err_id=75, err_m=f'Unrecognized argument \'{args[0]}\'')
-  
+
   t: str
   nxt: str
   for t, nxt in pairwise(args):
@@ -241,8 +245,8 @@ def parse(*, options={}, flags={}) -> dict:
         return err(err_id=64, err_m=f'Unexpected flag \'{nxt}\'')
 
   parsed = err(
-    err_code='Ok', 
-    err_id=100, 
+    err_code='Ok',
+    err_id=100,
     options=option_names,
     flags=flag_names,
     extend=parse_args_details(args=args, OPTIONS=OPTIONS, FLAGS=FLAGS),
@@ -307,7 +311,7 @@ def parse_args_details(*, args: List[str], OPTIONS: dict, FLAGS: dict):
       o = p
       continue
     # flags
-    if p in FLAGS: 
+    if p in FLAGS:
       _poss[index] = ['f', p]
       continue
     # plain argument
@@ -315,7 +319,7 @@ def parse_args_details(*, args: List[str], OPTIONS: dict, FLAGS: dict):
     _poss[index] = ['a', p]
     if len(args) == 0:
       if 'array' in OPTIONS[o] and OPTIONS[o]['array'] == False:
-        if len(opt_args) > 1: 
+        if len(opt_args) > 1:
           return err(err_id=85,err_m=f'option {o} allows only one argument, {len(opt_args)} given')
       details[o] = opt_args
       # details[o] = opt_args[0] TODO: Address issue of singular/pluaral for array/non-array opts
@@ -326,30 +330,30 @@ def parse_args_details(*, args: List[str], OPTIONS: dict, FLAGS: dict):
 # I think there's a thing or two about writing code in the morning. I mean early enough
 # in the morning when your brain still answers yes to most of your questions the cranks
 # Jokes apart, but it seems to me that the morning energy is kinda different generally,
-# nomatter which area. @cosmas, @broiyke, and @ebenezer what do you think. 
+# nomatter which area. @cosmas, @broiyke, and @ebenezer what do you think.
 # Did you notice that
 
 # #coding-ideas: One way to say what something is not is to sy what it is,
-# another way to say what something is, is to say what it is not. 
-# Sometimes, you can have it both ways, but you can never be locked out of both. 
-# Sometimes, it's easy to describe a situation in code, but sometimes, it's not. 
+# another way to say what something is, is to say what it is not.
+# Sometimes, you can have it both ways, but you can never be locked out of both.
+# Sometimes, it's easy to describe a situation in code, but sometimes, it's not.
 # So, one way to describe somethig is to just say what it is. But another way to
-# describe the same thing is to say what it is not in a way that connects the dots. 
+# describe the same thing is to say what it is not in a way that connects the dots.
 # In my experience, you can have it one way or both ways, but never neither way!
 # Think nature does some good here.
-# 
+#
 
 # It is not enough that we build products that function. We also need to build
-# products that bring joy and excittment, pleasure, and fun, and yes, beauty to 
+# products that bring joy and excittment, pleasure, and fun, and yes, beauty to
 # people's lives - Don Norman
-# 
-# 
+#
+#
 # If we want users to like our software, we should design it to behave like a likeable
-# person: respectful, generous and helpful. 
+# person: respectful, generous and helpful.
 # - Alan Cooper, Software Designer and Programmer
 
 
-# Wireframing is the most important step of any design. It forces you to think 
+# Wireframing is the most important step of any design. It forces you to think
 # about how things will be organized  and function.
 
 # The time it takes to make a decision increases as the number of alternatives increases
