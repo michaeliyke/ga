@@ -1,0 +1,9 @@
+sudo -k|-reset-timestamp
+
+sudo -g|-group=group
+sudo -h|-host=host
+
+Allow this kind of commands by:
+
+1. Make all parts use functions in other to make easily anything optional
+2. Use a --expand-flags flag in META FLAGS in order to optionally allow commands like the above
